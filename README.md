@@ -14,6 +14,9 @@ Typical use case:
 Raw-JPEG-copier doesn't delete any of your photos, only creates new copies of
 the raw photos. But it's in alpha so be careful and make backups!
 
+The raw and JPEG file extensions can be selected so this will work with
+Fujifilm, Sony, Canon, Nikon, or any other camera brand.
+
 Usage:
 
 ```
@@ -31,6 +34,7 @@ main:
 ```
 
 Example:
+
 ```
 go run main.go -source-dir "/Users/konrad.chlupka/Pictures/Capture One Catalog.cocatalog/Originals/2022/02/22/1" -jpeg-dir "/Users/konrad.chlupka/Pictures/tennis" -output-dir "/Users/konrad.chlupka/Pictures/tennis"
 ```
