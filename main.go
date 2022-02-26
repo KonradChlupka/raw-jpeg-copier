@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io"
 	"io/fs"
 	"log"
 	"os"
@@ -11,14 +10,14 @@ import (
 	"strings"
 )
 
-// main copies RAW files which match the name of the JPEG files.
+// main moves RAW files which match the names of the JPEG files.
 func main() {
 	jpegExt := flag.String("jpeg-ext", ".JPG", "case-sensitive extension for the JPEG files, incl. the leading period")
 	rawExt := flag.String("raw-ext", ".RAF", "case-sensitive extension for the raw files, incl. the leading period")
 
 	sourceDirWithRawFiles := flag.String("source-dir", "", "source directory with the raw files")
 	dirWithJPEGs := flag.String("jpeg-dir", "", "directory with the jpeg files which you want to find the pairing raw for")
-	rawOutputDir := flag.String("output-dir", "", "the directory to which the raw files should be copied")
+	rawOutputDir := flag.String("output-dir", "", "the directory to which the raw files should be moved")
 
 	flag.Parse()
 	if *sourceDirWithRawFiles == "" || *dirWithJPEGs == "" || *rawOutputDir == "" {
@@ -37,7 +36,7 @@ func main() {
 		fileInfo, err := os.Stat(path)
 		if err != nil {
 			log.Println("Failed to get file stats:", err)
-			return nil
+			return err
 		}
 
 		if fileInfo.IsDir() {
@@ -54,28 +53,13 @@ func main() {
 		rawFilename := fmt.Sprintf("%s%s", strings.TrimSuffix(jpegFilename, filepath.Ext(path)), *rawExt)
 
 		rawFileInSourceDir := filepath.Join(*sourceDirWithRawFiles, rawFilename)
-		sourceFd, err := os.Open(rawFileInSourceDir)
-		if err != nil {
-			log.Println("Failed to open source raw file:", err)
-			log.Println("The matching raw file might be missing")
-			return nil
-		}
-		defer sourceFd.Close()
-
 		rawFileInDestDir := filepath.Join(*rawOutputDir, rawFilename)
-		destFd, err := os.Create(rawFileInDestDir)
-		if err != nil {
-			log.Println("Failed to open destination raw file:", err)
+
+		if err = os.Rename(rawFileInSourceDir, rawFileInDestDir); err != nil {
+			log.Println("Failed to move the file:", err)
 			return err
 		}
-		defer destFd.Close()
-
-		bytesWritten, err := io.Copy(destFd, sourceFd)
-		if err != nil {
-			log.Println("Failed to copy file:", err)
-			return nil
-		}
-		log.Printf("Finished copying file from %s to %s\n %d bytes written", rawFileInSourceDir, rawFileInDestDir, bytesWritten)
+		log.Printf("Finished moving file from %s to %s", rawFileInSourceDir, rawFileInDestDir)
 
 		return nil
 	}); err != nil {
