@@ -20,8 +20,12 @@ func main() {
 	rawOutputDir := flag.String("output-dir", "", "the directory to which the raw files should be moved")
 
 	flag.Parse()
-	if *sourceDirWithRawFiles == "" || *dirWithJPEGs == "" || *rawOutputDir == "" {
+	if *sourceDirWithRawFiles == "" || *dirWithJPEGs == "" {
 		flag.Usage()
+	}
+
+	if *rawOutputDir == "" {
+		rawOutputDir = dirWithJPEGs
 	}
 
 	if err := os.MkdirAll(*rawOutputDir, 0755); err != nil {
