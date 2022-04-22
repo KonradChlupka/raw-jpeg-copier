@@ -61,7 +61,7 @@ func main() {
 
 		if err = os.Rename(rawFileInSourceDir, rawFileInDestDir); err != nil {
 			log.Println("Failed to move the file:", err)
-			return err
+			return nil
 		}
 		log.Printf("Finished moving file from %s to %s", rawFileInSourceDir, rawFileInDestDir)
 
